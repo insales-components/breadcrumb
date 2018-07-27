@@ -1,0 +1,13 @@
+{
+  "name": "breadcrumb",
+  "version": "1.0.0",
+  "description": "Хлебные крошки",
+  "author": "LiquidHub.ru",
+  "type": "snippets",
+  "homepage": "https://github.com/insales-components/breadcrumb",
+  "props": {
+    "common": false,
+    "liquid": true
+  },
+  "dependencies": {}
+}

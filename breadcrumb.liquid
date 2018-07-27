@@ -1,0 +1,164 @@
+{% assign with_tag = blog.tags.first.current? %}
+{% assign show_last = show_last | default: true %}
+{% assign search_title = messages.search_title | default: 'Поиск' %}
+{% assign comparison_title = messages.comparison_title | default: 'Сравнение' %}
+{% assign cart_title = messages.cart_title | default: 'Корзина' %}
+{% assign breadcrumb_home = messages.breadcrumb_home | default: 'Главная' %}
+
+<div class="breadcrumb-wrapper">
+
+  <ul class="breadcrumb">
+
+    <li class="breadcrumb-item home">
+      <a class="breadcrumb-link is-home" title="{{ home_title }}" href="/">
+        {{ breadcrumb_home }}
+      </a>
+    </li>
+
+    {% if template contains 'page' and show_last %}
+      <li class="breadcrumb-item">
+        <span class="breadcrumb-page">{{ page.title }}</span>
+      </li>
+
+    {% elsif template contains "search" and show_last %}
+      <li class="breadcrumb-item">
+        <span class="breadcrumb-page">
+          {{ search_title }}
+        </span>
+      </li>
+
+    {% elsif template contains "blog" %}
+      {% if with_tag %}
+        <li class="breadcrumb-item">
+          <a href="{{ blog.url }}" class="breadcrumb-link">{{ blog.title }}</a>
+        </li>
+
+        <li class="breadcrumb-item">
+          <span class="breadcrumb-page">{{ blog.tags.first.title }}</span>
+        </li>
+
+      {% elsif show_last %}
+        <li class="breadcrumb-item">
+          <span class="breadcrumb-page">{{ blog.title }}</span>
+        </li>
+      {% endif %}
+
+    {% elsif template contains 'article' %}
+      <li class="breadcrumb-item">
+        <a class="breadcrumb-link" title="{{ blog.title }}" href="{{ blog.url }}">{{ blog.title }}</a>
+      </li>
+
+      {% if show_last %}
+        <li class="breadcrumb-item">
+          <span class="breadcrumb-page">{{ article.title }}</span>
+        </li>
+      {% endif %}
+
+    {% elsif template contains 'cart' and show_last %}
+      <li class="breadcrumb-item">
+        <span class="breadcrumb-page">
+          {{ cart_title }}
+        </span>
+      </li>
+
+    {% elsif template contains 'compare' and show_last %}
+      <li class="breadcrumb-item">
+        <span class="breadcrumb-page">
+          {{ comparison_title }}
+        </span>
+      </li>
+
+    {% elsif template contains 'collection' %}
+      {% if current_collections.size == 1 and show_last %}
+      {% if filter %}
+        <li class="breadcrumb-item" >
+        <a class="breadcrumb-link" title="{{ collection.title }}" href="{{ collection.url }}">{{ collection.title }}</a>
+      </li>
+        <li class="breadcrumb-item">
+          <span class="breadcrumb-page">{{ filter.title }}</span>
+        </li>
+        {% else %}
+        <li class="breadcrumb-item">
+          <span class="breadcrumb-page">{{ collection.title }}</span>
+        </li>
+        {% endif %}
+
+      {% elsif current_collections.size > 0 %}
+
+        {% for collection in current_collections %}
+          {% if collection.level > 0 %}
+            {% unless forloop.last %}
+              <li class="breadcrumb-item" data-breadcrumbs="{{ forloop.index }}">
+                <a class="breadcrumb-link" title="{{ collection.title }}" href="{{ collection.url }}">{{ collection.title }}</a>
+              </li>
+            {% elsif show_last %}
+              {% if filter %}
+                <li class="breadcrumb-item" >
+                  <a class="breadcrumb-link" title="{{ collection.title }}" href="{{ collection.url }}">{{ collection.title }}</a>
+                </li>
+                <li class="breadcrumb-item">
+                  <span class="breadcrumb-page">{{ filter.title }}</span>
+                </li>
+              {% else %}
+                <li class="breadcrumb-item">
+                  <span class="breadcrumb-page">{{ collection.title }}</span>
+                </li>
+              {% endif %}
+            {% endunless %}
+          {% endif %}
+        {% endfor %}
+
+      {% endif %}
+
+    {% elsif template contains 'product' %}
+      {% comment %}
+        мы перешли в товар из корня каталога
+      {% endcomment %}
+      {% if current_collections.size == 1 %}
+        {% assign path = current_collections %}
+        {% assign ignor_root = false %}
+
+      {% comment %}
+        мы переходили по сайту - все ок, мы знаем как сюда пришли
+      {% endcomment %}
+      {% elsif current_collections.size > 1 %}
+        {% assign path = current_collections %}
+        {% assign ignor_root = true %}
+
+      {% comment %}
+        мы перешли с внешней ссылки и не знаем, к какой категории относится товар
+      {% endcomment %}
+      {% else %}
+        {% assign root = product.collections | sort: 'level' | %}
+        {% assign path = root.last.current_collections %}
+        {% assign ignor_root = true %}
+      {% endif %}
+
+      {% assign show_link = true %}
+      {% for collection in path %}
+        {% if collection.level == 0 and ignor_root %}
+          {% assign show_link = false %}
+        {% endif %}
+
+        {% if show_link %}
+          <li class="breadcrumb-item" data-breadcrumbs="{{ forloop.index }}">
+            <a class="breadcrumb-link" title="{{ collection.title }}" href="{{ collection.url }}">{{ collection.title }}</a>
+          </li>
+        {% endif %}
+
+        {% assign show_link = true %}
+      {% endfor %}
+
+    {% endif %}
+
+  </ul>
+
+</div>
+
+{% assign search_title = null %}
+{% assign comparison_title = null %}
+{% assign cart_title = null %}
+
+{% assign show_link = null %}
+{% assign path = null %}
+{% assign with_tag = null %}
