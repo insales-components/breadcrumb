@@ -129,7 +129,7 @@
         мы перешли с внешней ссылки и не знаем, к какой категории относится товар
       {% endcomment %}
       {% else %}
-        {% assign root = product.collections | sort: 'level' | %}
+        {% assign root = product.collections | sort: 'level' %}
         {% assign path = root.last.current_collections %}
         {% assign ignor_root = true %}
       {% endif %}
